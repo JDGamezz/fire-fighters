@@ -148,7 +148,7 @@ export const KnightTest = () => {
               imageRendering: "pixelated",
               width: "128px",
               height: "128px",
-              objectFit: "contain",
+              objectFit: "fill",
             }}
           />
         </div>
