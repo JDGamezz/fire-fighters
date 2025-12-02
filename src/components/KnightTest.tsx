@@ -39,7 +39,7 @@ const scaleFactors: Record<State, number> = {
 
 // Vertical offset to ground sprites (positive = down)
 const yOffsets: Record<State, number> = {
-  "idle": 20,
+  "idle": 30,
   "run": 0,
   "attack": 20,
   "crouch-walk": 35,
