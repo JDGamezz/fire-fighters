@@ -41,7 +41,7 @@ const scaleFactors: Record<State, number> = {
 const yOffsets: Record<State, number> = {
   "idle": 30,
   "run": 0,
-  "attack": 20,
+  "attack": 17,
   "crouch-walk": 35,
   "crouch-attack": 35,
 };
