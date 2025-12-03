@@ -197,7 +197,7 @@ export const KnightTest = () => {
             </div>
           </div>
           <p className="text-game-muted text-xs mt-4 text-center">
-            Also supports WASD keys
+            BHS TSA
           </p>
         </div>
       </footer>
