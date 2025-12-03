@@ -52,6 +52,11 @@ interface Enemy {
   speed: number;
 }
 
+interface ScorePopup {
+  id: number;
+  x: number;
+}
+
 const SPAWN_POSITIONS = [10, 90]; // Fixed spawn positions (left and right)
 const ATTACK_RANGE = 15; // Attack range in percentage (sword reach)
 
@@ -62,7 +67,10 @@ export const KnightTest = () => {
   const [keys, setKeys] = useState<Set<string>>(new Set());
   const [isAttacking, setIsAttacking] = useState(false);
   const [enemies, setEnemies] = useState<Enemy[]>([]);
+  const [score, setScore] = useState(0);
+  const [scorePopups, setScorePopups] = useState<ScorePopup[]>([]);
   const enemyIdRef = useRef(0);
+  const popupIdRef = useRef(0);
 
   const currentAnimation = animations[`${state}-${direction}`];
   const currentScale = scaleFactors[state];
@@ -81,13 +89,30 @@ export const KnightTest = () => {
 
   // Kill enemies in range when attacking
   const killEnemiesInRange = useCallback(() => {
-    setEnemies((prev) =>
-      prev.filter((enemy) => {
+    setEnemies((prev) => {
+      const killed: number[] = [];
+      const surviving = prev.filter((enemy) => {
         const distance = Math.abs(enemy.x - positionX);
         const inFront = direction === "right" ? enemy.x > positionX : enemy.x < positionX;
-        return !(distance < ATTACK_RANGE && inFront);
-      })
-    );
+        const shouldDie = distance < ATTACK_RANGE && inFront;
+        if (shouldDie) killed.push(enemy.x);
+        return !shouldDie;
+      });
+      
+      // Add score and popups for killed enemies
+      if (killed.length > 0) {
+        setScore((s) => s + killed.length * 10);
+        killed.forEach((x) => {
+          const popupId = popupIdRef.current++;
+          setScorePopups((p) => [...p, { id: popupId, x }]);
+          setTimeout(() => {
+            setScorePopups((p) => p.filter((popup) => popup.id !== popupId));
+          }, 800);
+        });
+      }
+      
+      return surviving;
+    });
   }, [positionX, direction]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -195,8 +220,7 @@ export const KnightTest = () => {
           Knight Movement Test
         </h1>
         <p className="text-game-muted mt-2">
-          Current State: <span className="text-game-accent font-bold">{state}</span> | 
-          Direction: <span className="text-game-accent font-bold">{direction}</span>
+          Score: <span className="text-game-accent font-bold text-xl">{score}</span>
         </p>
       </header>
 
@@ -204,6 +228,20 @@ export const KnightTest = () => {
       <main className="flex-1 relative overflow-hidden">
         {/* Ground line */}
         <div className="absolute bottom-20 left-0 right-0 h-1 bg-game-ground" />
+
+        {/* Score Popups */}
+        {scorePopups.map((popup) => (
+          <div
+            key={popup.id}
+            className="absolute bottom-32 text-yellow-400 font-pixel font-bold text-2xl pointer-events-none animate-score-popup"
+            style={{
+              left: `${popup.x}%`,
+              transform: "translateX(-50%)",
+            }}
+          >
+            +10
+          </div>
+        ))}
 
         {/* Enemies */}
         {enemies.map((enemy) => (
