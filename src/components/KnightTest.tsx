@@ -69,16 +69,11 @@ interface ScorePopup {
 
 const SPAWN_POSITIONS = [10, 90]; // Fixed spawn positions (left and right)
 const ATTACK_RANGE = 13; // Attack range in percentage (sword reach)
-const GRAVITY = 1.5;
-const JUMP_FORCE = 18;
 
 export const KnightTest = () => {
   const [direction, setDirection] = useState<Direction>("right");
   const [state, setState] = useState<State>("idle");
   const [positionX, setPositionX] = useState(50);
-  const [positionY, setPositionY] = useState(0);
-  const [velocityY, setVelocityY] = useState(0);
-  const [isJumping, setIsJumping] = useState(false);
   const [keys, setKeys] = useState<Set<string>>(new Set());
   const [isAttacking, setIsAttacking] = useState(false);
   const [enemies, setEnemies] = useState<Enemy[]>([]);
@@ -138,19 +133,13 @@ export const KnightTest = () => {
       spawnEnemy();
     }
     
-    // Jump on W or Up arrow
-    if ((e.key.toLowerCase() === "w" || e.key === "ArrowUp") && !isJumping) {
-      setIsJumping(true);
-      setVelocityY(JUMP_FORCE);
-    }
-    
     // Attack on space
     if (e.key === " " && !isAttacking) {
       setIsAttacking(true);
       killEnemiesInRange();
       setTimeout(() => setIsAttacking(false), 400);
     }
-  }, [isAttacking, isJumping, spawnEnemy, killEnemiesInRange]);
+  }, [isAttacking, spawnEnemy, killEnemiesInRange]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     setKeys((prev) => {
@@ -199,7 +188,7 @@ export const KnightTest = () => {
     }
   }, [keys, isAttacking]);
 
-  // Game loop for smooth movement and gravity
+  // Game loop for smooth movement
   useEffect(() => {
     const interval = setInterval(() => {
       const isCrouching = keys.has("arrowdown") || keys.has("s");
@@ -214,24 +203,10 @@ export const KnightTest = () => {
           setPositionX((prev) => Math.min(95, prev + (isCrouching ? 0.5 : 1)));
         }
       }
-
-      // Apply gravity
-      if (isJumping) {
-        setVelocityY((v) => v - GRAVITY);
-        setPositionY((y) => {
-          const newY = y + velocityY;
-          if (newY <= 0) {
-            setIsJumping(false);
-            setVelocityY(0);
-            return 0;
-          }
-          return newY;
-        });
-      }
     }, 30);
 
     return () => clearInterval(interval);
-  }, [keys, isAttacking, isJumping, velocityY]);
+  }, [keys, isAttacking]);
 
   // Move enemies toward player
   useEffect(() => {
@@ -302,7 +277,7 @@ export const KnightTest = () => {
           className="absolute bottom-20 transition-none flex items-end justify-center"
           style={{
             left: `${positionX}%`,
-            transform: `translateX(-50%) translateY(-${positionY}px)`,
+            transform: "translateX(-50%)",
             height: "150px",
           }}
         >
@@ -339,10 +314,6 @@ export const KnightTest = () => {
             <div className="bg-game-key p-3 rounded text-center">
               <kbd className="text-game-accent font-bold">Space</kbd>
               <p className="text-game-muted mt-1">Attack</p>
-            </div>
-            <div className="bg-game-key p-3 rounded text-center">
-              <kbd className="text-game-accent font-bold">W / ↑</kbd>
-              <p className="text-game-muted mt-1">Jump</p>
             </div>
             <div className="bg-game-key p-3 rounded text-center">
               <kbd className="text-game-accent font-bold">E</kbd>
