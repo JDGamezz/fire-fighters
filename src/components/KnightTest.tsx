@@ -476,10 +476,10 @@ export const KnightTest = () => {
         
         // Vertical movement (isometric Y) - same speed as horizontal
         if (isMovingUp) {
-          setPositionY((prev) => Math.min(PLAY_AREA_MAX_Y, prev + moveSpeed));
+           setPositionY((prev) => Math.min(95, prev + moveSpeed));
         }
         if (isMovingDown) {
-          setPositionY((prev) => Math.max(PLAY_AREA_MIN_Y, prev + moveSpeed));
+           setPositionY((prev) => Math.min(95, prev + moveSpeed));
         }
       }
 
