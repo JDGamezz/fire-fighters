@@ -134,7 +134,7 @@ const BOSS_STATS = {
 
 // Isometric play area bounds (Y position in pixels, 0 = bottom, 150 = top of play area)
 const PLAY_AREA_MIN_Y = 0;
-const PLAY_AREA_MAX_Y = 110;
+const PLAY_AREA_MAX_Y = 87;
 
 export const KnightTest = () => {
   const [direction, setDirection] = useState<Direction>("right");
