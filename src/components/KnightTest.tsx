@@ -479,7 +479,7 @@ export const KnightTest = () => {
           setPositionY((prev) => Math.min(PLAY_AREA_MAX_Y, prev + moveSpeed));
         }
         if (isMovingDown) {
-          setPositionY((prev) => Math.max(PLAY_AREA_MIN_Y, prev - moveSpeed));
+          setPositionY((prev) => Math.max(PLAY_AREA_MIN_Y, prev + moveSpeed));
         }
       }
 
