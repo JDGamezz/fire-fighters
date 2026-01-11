@@ -12,7 +12,7 @@ import crouchWalkLeft from "@/assets/Crouch_Walking_Left.gif";
 import crouchAttackRight from "@/assets/Crouch_Attack_Right.gif";
 import crouchAttackLeft from "@/assets/Crouch_Attack_Left.gif";
 import fireEnemy from "@/assets/fire-enemy.gif";
-import candleEnemyLeft from "@/assets/candle_enemy_idle.gif";
+import candleEnemyLeft from "src/assets/candle_enemy_left.gif@/assets/candle_enemy_idle.gif";
 import candleEnemyRight from "@/assets/candle_enemy_right.gif";
 import candleEnemyIdle from "@/assets/candle_enemy_idle.gif";
 import fireBoss from "@/assets/fire_boss.gif";
