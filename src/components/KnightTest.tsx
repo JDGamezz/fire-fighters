@@ -500,16 +500,20 @@ export const KnightTest = () => {
     velocityX.current *= FRICTION;
     velocityY.current *= FRICTION;
 
-    if (!isAttacking) {
-      setPositionX((x) =>
-        Math.max(5, Math.min(95, x + velocityX.current * delta))
-      );
-      setPositionY((y) =>
-        Math.max(PLAY_AREA_MIN_Y, Math.min(PLAY_AREA_MAX_Y, y + velocityY.current * delta))
-      );
+if (!isAttacking) {
+  setPositionX((x) =>
+    Math.max(5, Math.min(95, x + velocityX.current * delta))
+  );
+  setPositionY((y) =>
+    Math.max(PLAY_AREA_MIN_Y, Math.min(PLAY_AREA_MAX_Y, y + velocityY.current * delta))
+  );
 
-      setBackgroundOffset((o) => o - velocityX.current * 2);
-    }
+  setBackgroundOffset((o) => o - velocityX.current * 2);
+} else {
+  // Freeze completely during attack
+  stopVelocity();
+}
+
 
     requestAnimationFrame(loop);
   };
