@@ -468,55 +468,126 @@ export const KnightTest = () => {
     };
   }, [gameState, currentLevel, spawnEnemy]);
 
- useEffect(() => {
-  if (gameState !== "playing" && gameState !== "boss") return;
+  useEffect(() => {
+    if (gameState !== "playing" && gameState !== "boss") return;
 
-  let lastTime = performance.now();
+    const isMovingLeft = keys.has("arrowleft") || keys.has("a");
+    const isMovingRight = keys.has("arrowright") || keys.has("d");
+    const isMovingUp = keys.has("arrowup") || keys.has("w");
+    const isMovingDown = keys.has("arrowdown") || keys.has("s");
+    const isMoving = isMovingLeft || isMovingRight || isMovingUp || isMovingDown;
 
-  const loop = (time: number) => {
-    const delta = (time - lastTime) / 16.67; // normalize to 60fps
-    lastTime = time;
+    if (isMovingLeft) setDirection("left");
+    if (isMovingRight) setDirection("right");
 
-    const left = keys.has("arrowleft") || keys.has("a");
-    const right = keys.has("arrowright") || keys.has("d");
-    const up = keys.has("arrowup") || keys.has("w");
-    const down = keys.has("arrowdown") || keys.has("s");
-
-    const speed = isCrouching ? TARGET_SPEED * 0.5 : TARGET_SPEED;
-
-    // Horizontal acceleration
-    if (left) velocityX.current -= ACCEL * delta;
-    if (right) velocityX.current += ACCEL * delta;
-
-    // Vertical acceleration
-    if (up) velocityY.current += ACCEL * delta;
-    if (down) velocityY.current -= ACCEL * delta;
-
-    // Clamp velocity
-    velocityX.current = Math.max(-speed, Math.min(speed, velocityX.current));
-    velocityY.current = Math.max(-speed, Math.min(speed, velocityY.current));
-
-    // Apply friction
-    velocityX.current *= FRICTION;
-    velocityY.current *= FRICTION;
-
-    if (!isAttacking) {
-      setPositionX((x) =>
-        Math.max(5, Math.min(95, x + velocityX.current * delta))
-      );
-      setPositionY((y) =>
-        Math.max(PLAY_AREA_MIN_Y, Math.min(PLAY_AREA_MAX_Y, y + velocityY.current * delta))
-      );
-
-      setBackgroundOffset((o) => o - velocityX.current * 2);
+    if (isAttacking) {
+      setState(isCrouching ? "crouch-attack" : "attack");
+    } else if (isCrouching && isMoving) {
+      setState("crouch-walk");
+    } else if (isCrouching) {
+      setState("crouch-idle");
+    } else if (isMoving) {
+      setState("run");
+    } else {
+      setState("idle");
     }
+  }, [keys, isAttacking, isCrouching, gameState]);
 
-    requestAnimationFrame(loop);
-  };
+  useEffect(() => {
+    if (gameState !== "playing" && gameState !== "boss") return;
 
-  requestAnimationFrame(loop);
-}, [keys, isAttacking, isCrouching, gameState]);
+    const interval = setInterval(() => {
+      const isMovingLeft = keys.has("arrowleft") || keys.has("a");
+      const isMovingRight = keys.has("arrowright") || keys.has("d");
+      const isMovingUp = keys.has("arrowup") || keys.has("w");
+      const isMovingDown = keys.has("arrowdown") || keys.has("s");
 
+      const moveSpeed = isCrouching ? 0.5 : 1.5;
+
+      if (!isAttacking) {
+        if (isMovingLeft) {
+          setPositionX((prev) => Math.max(5, prev - moveSpeed));
+          setBackgroundOffset((prev) => prev + 2);
+        }
+        if (isMovingRight) {
+          setPositionX((prev) => Math.min(95, prev + moveSpeed));
+          setBackgroundOffset((prev) => prev - 2);
+        }
+        if (isMovingUp) {
+          setPositionY((prev) => Math.min(PLAY_AREA_MAX_Y, prev + moveSpeed));
+        }
+        if (isMovingDown) {
+          setPositionY((prev) => Math.max(PLAY_AREA_MIN_Y, prev - moveSpeed));
+        }
+      }
+
+      setEnemies((prev) =>
+        prev.map((enemy) => ({
+          ...enemy,
+          x: Math.max(0, Math.min(100, enemy.x + enemy.knockback)),
+          y: Math.max(PLAY_AREA_MIN_Y, Math.min(PLAY_AREA_MAX_Y, enemy.y + enemy.knockbackY)),
+          knockback: Math.abs(enemy.knockback) < 0.1 ? 0 : enemy.knockback * (1 - KNOCKBACK_RECOVERY),
+          knockbackY: Math.abs(enemy.knockbackY) < 0.1 ? 0 : enemy.knockbackY * (1 - KNOCKBACK_RECOVERY),
+        }))
+      );
+
+      setBoss((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          x: Math.max(5, Math.min(95, prev.x + prev.knockback)),
+          y: Math.max(PLAY_AREA_MIN_Y, Math.min(PLAY_AREA_MAX_Y, prev.y + prev.knockbackY)),
+          knockback: Math.abs(prev.knockback) < 0.1 ? 0 : prev.knockback * (1 - KNOCKBACK_RECOVERY),
+          knockbackY: Math.abs(prev.knockbackY) < 0.1 ? 0 : prev.knockbackY * (1 - KNOCKBACK_RECOVERY),
+        };
+      });
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, [keys, isAttacking, isCrouching, gameState]);
+
+  useEffect(() => {
+    if (gameState !== "playing" && gameState !== "boss") return;
+
+    const moveInterval = setInterval(() => {
+      setEnemies((prev) =>
+        prev.map((enemy) => {
+          if (Math.abs(enemy.knockback) > 0.5 || Math.abs(enemy.knockbackY) > 0.5) return enemy;
+
+          const dirX = positionX > enemy.x ? 1 : -1;
+          const dirY = positionY > enemy.y ? 1 : -1;
+          const newDirection: Direction = dirX > 0 ? "right" : "left";
+
+          return {
+            ...enemy,
+            x: Math.max(0, Math.min(100, enemy.x + dirX * enemy.speed)),
+            y: Math.max(PLAY_AREA_MIN_Y, Math.min(PLAY_AREA_MAX_Y, enemy.y + dirY * enemy.speed * 0.7)),
+            direction: newDirection,
+          };
+        })
+      );
+
+      setEnemies((prev) => {
+        prev.forEach((enemy) => {
+          const distanceX = Math.abs(enemy.x - positionX);
+          const distanceY = Math.abs(enemy.y - positionY);
+          if (distanceX < 5 && distanceY < 20) {
+            setPlayerHealth((h) => {
+              const newHealth = h - 1;
+              if (newHealth <= 0) {
+                setGameState("game-over");
+                return 0;
+              }
+              return newHealth;
+            });
+          }
+        });
+        return prev;
+      });
+    }, 30);
+
+    return () => clearInterval(moveInterval);
+  }, [positionX, positionY, gameState]);
 
   useEffect(() => {
     if (gameState !== "boss" || !boss) return;
