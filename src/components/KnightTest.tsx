@@ -909,15 +909,15 @@ export const KnightTest = () => {
         {/* Character */}
         {(gameState === "playing" || gameState === "boss") && (
           <div
-            className="absolute transition-none flex items-end justify-center"
-            style={{
-              left: `${positionX}%`,
-              bottom: `${getBottomPosition(positionY)}px`,
-              transform: `translateX(-50%) scale(${getDepthScale(positionY)})`,
-              height: "150px",
-              zIndex: getZIndex(positionY),
-            }}
-          >
+  className="absolute transition-none flex items-end justify-center"
+  style={{
+    left: `${positionX}%`,
+    bottom: `${getBottomPosition(positionY)}px`,
+    transform: `translateX(-50%)`,
+    height: "150px",
+    zIndex: getZIndex(positionY),
+  }}
+>
             <img
               src={currentAnimation}
               alt={`Knight ${state} ${direction}`}
