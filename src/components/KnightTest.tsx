@@ -62,7 +62,7 @@ const preloadImages = () => {
     const img = new Image();
     img.src = src;
   });
-  [fireEnemy, candleEnemyLeft, candleEnemyRight, candleEnemyIdle, bgLevel1, bgLevel2, bgLevel3, bgBoss].forEach((src) => {
+  [fireEnemy, candleEnemyLeft, candleEnemyRight, candleEnemyIdle, candleDissolvingGif, fireBoss, bgLevel1, bgLevel2, bgLevel3, bgBoss].forEach((src) => {
     const img = new Image();
     img.src = src;
   });
@@ -163,7 +163,7 @@ export const KnightTest = () => {
   
   const enemyIdRef = useRef(0);
   const popupIdRef = useRef(0);
-  const spawnTimerRef = useRef<number | null>(null);
+  const spawnTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mainMusicRef = useRef<HTMLAudioElement | null>(null);
   const bossMusicRef = useRef<HTMLAudioElement | null>(null);
 
