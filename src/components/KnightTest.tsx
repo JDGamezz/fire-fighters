@@ -17,6 +17,7 @@ import candleEnemyRight from "@/assets/candle_enemy_right.gif";
 import candleEnemyIdle from "@/assets/candle_enemy_idle.gif";
 import candleDissolvingGif from "@/assets/candle_enemy_dissolving.gif";
 import fireBoss from "@/assets/fire_boss.gif";
+import fireEnemyFizzling from "@/assets/fire_enemy_fizzling.gif";
 
 // Level backgrounds
 import bgLevel1 from "@/assets/bg_level_1.png";
@@ -62,7 +63,7 @@ const preloadImages = () => {
     const img = new Image();
     img.src = src;
   });
-  [fireEnemy, candleEnemyLeft, candleEnemyRight, candleEnemyIdle, candleDissolvingGif, fireBoss, bgLevel1, bgLevel2, bgLevel3, bgBoss].forEach((src) => {
+  [fireEnemy, fireEnemyFizzling, candleEnemyLeft, candleEnemyRight, candleEnemyIdle, candleDissolvingGif, fireBoss, bgLevel1, bgLevel2, bgLevel3, bgBoss].forEach((src) => {
     const img = new Image();
     img.src = src;
   });
@@ -861,7 +862,7 @@ export const KnightTest = () => {
             }}
           >
             <img 
-              src={enemy.isDying ? `${candleDissolvingGif}?t=${enemy.dyingTimestamp}` : fireEnemy}
+              src={enemy.isDying ? `${fireEnemyFizzling}?t=${enemy.dyingTimestamp}` : fireEnemy}
               alt="Fire enemy"
               className="w-24 h-24"
               style={{ imageRendering: "pixelated" }}
