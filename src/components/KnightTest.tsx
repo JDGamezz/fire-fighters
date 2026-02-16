@@ -567,13 +567,16 @@ export const KnightTest = () => {
       }
 
       // Recover enemy knockback
-      setEnemies((prev) => prev.map((enemy) => ({
-        ...enemy,
-        x: Math.max(0, Math.min(100, enemy.x + enemy.knockback * timeScale)),
-        y: Math.max(PLAY_AREA_MIN_Y, Math.min(PLAY_AREA_MAX_Y, enemy.y + enemy.knockbackY * timeScale)),
-        knockback: Math.abs(enemy.knockback) < 0.1 ? 0 : enemy.knockback * Math.pow(1 - KNOCKBACK_RECOVERY, timeScale),
-        knockbackY: Math.abs(enemy.knockbackY) < 0.1 ? 0 : enemy.knockbackY * Math.pow(1 - KNOCKBACK_RECOVERY, timeScale),
-      })));
+      setEnemies((prev) => prev.map((enemy) => {
+        if (enemy.isDying) return enemy;
+        return {
+          ...enemy,
+          x: Math.max(0, Math.min(100, enemy.x + enemy.knockback * timeScale)),
+          y: Math.max(PLAY_AREA_MIN_Y, Math.min(PLAY_AREA_MAX_Y, enemy.y + enemy.knockbackY * timeScale)),
+          knockback: Math.abs(enemy.knockback) < 0.1 ? 0 : enemy.knockback * Math.pow(1 - KNOCKBACK_RECOVERY, timeScale),
+          knockbackY: Math.abs(enemy.knockbackY) < 0.1 ? 0 : enemy.knockbackY * Math.pow(1 - KNOCKBACK_RECOVERY, timeScale),
+        };
+      }));
 
       // Recover boss knockback
       setBoss((prev) => {
@@ -611,6 +614,7 @@ export const KnightTest = () => {
 
       setEnemies((prev) =>
         prev.map((enemy) => {
+          if (enemy.isDying) return enemy;
           if (Math.abs(enemy.knockback) > 0.5 || Math.abs(enemy.knockbackY) > 0.5) return enemy;
           
           const dirX = positionX > enemy.x ? 1 : -1;
