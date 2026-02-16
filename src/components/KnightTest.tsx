@@ -99,6 +99,8 @@ interface Enemy {
   knockback: number;
   knockbackY: number; // Y knockback
   isHurt: boolean;
+  isDying: boolean;
+  dyingTimestamp: number | null;
 }
 
 interface Boss {
@@ -216,6 +218,8 @@ export const KnightTest = () => {
       knockback: 0,
       knockbackY: 0,
       isHurt: false,
+      isDying: false,
+      dyingTimestamp: null,
     };
     setEnemies((prev) => [...prev, newEnemy]);
   }, [gameState]);
@@ -254,12 +258,22 @@ export const KnightTest = () => {
         const inFront = direction === "right" ? enemy.x > positionX : enemy.x < positionX;
         
         // Check both X and Y range for isometric hit detection
+        if (enemy.isDying) {
+          newEnemies.push(enemy);
+          return;
+        }
         if (distanceX < ATTACK_RANGE && distanceY < ATTACK_RANGE_Y && inFront) {
           const newHealth = enemy.health - 1;
           if (newHealth <= 0) {
             const points = ENEMY_STATS[enemy.type].points;
             totalPoints += points;
             popupsToAdd.push({ x: enemy.x, y: enemy.y, value: points });
+            // Keep enemy but mark as dying for dissolve animation
+            const dyingTs = Date.now();
+            newEnemies.push({ ...enemy, health: 0, isDying: true, dyingTimestamp: dyingTs });
+            setTimeout(() => {
+              setEnemies(e => e.filter(en => en.id !== enemy.id));
+            }, 1000);
           } else {
             const knockbackDir = direction === "right" ? 1 : -1;
             newEnemies.push({ 
@@ -847,7 +861,7 @@ export const KnightTest = () => {
             }}
           >
             <img 
-              src={fireEnemy}
+              src={enemy.isDying ? `${candleDissolvingGif}?t=${enemy.dyingTimestamp}` : fireEnemy}
               alt="Fire enemy"
               className="w-24 h-24"
               style={{ imageRendering: "pixelated" }}
